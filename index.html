@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quản Lý Link Của Tôi</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      min-height: 100vh;
+      padding: 30px 15px;
+      color: #333;
+    }
+    .container {
+      max-width: 700px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 16px;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+    h1 { text-align: center; margin-bottom: 20px; color: #4a3f9f; }
+    .form-group {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+    }
+    input {
+      flex: 1;
+      padding: 12px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-size: 15px;
+      outline: none;
+      transition: 0.3s;
+      min-width: 150px;
+    }
+    input:focus { border-color: #667eea; }
+    button {
+      padding: 12px 20px;
+      background: #667eea;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      cursor: pointer;
+      transition: 0.3s;
+      font-weight: 600;
+    }
+    button:hover { background: #4a5fd1; transform: translateY(-2px); }
+    .link-list { margin-top: 25px; }
+    .link-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #f8f9ff;
+      padding: 14px 18px;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      border-left: 4px solid #667eea;
+      transition: 0.2s;
+    }
+    .link-item:hover { background: #eef0ff; transform: translateX(4px); }
+    .link-item a {
+      color: #4a3f9f;
+      text-decoration: none;
+      font-weight: 500;
+      word-break: break-all;
+      flex: 1;
+      margin-right: 10px;
+    }
+    .link-item a:hover { text-decoration: underline; }
+    .delete-btn {
+      background: #ff4757;
+      padding: 6px 12px;
+      font-size: 13px;
+      border-radius: 6px;
+    }
+    .delete-btn:hover { background: #e63946; }
+    .empty { text-align: center; color: #999; padding: 20px; font-style: italic; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔗 Quản Lý Link</h1>
+
+    <div class="form-group">
+      <input type="text" id="linkName" placeholder="Tên link (VD: Google)">
+      <input type="url" id="linkUrl" placeholder="https://...">
+    </div>
+    <div class="form-group">
+      <button onclick="addLink()">➕ Thêm Link</button>
+    </div>
+
+    <div class="link-list" id="linkList"></div>
+  </div>
+
+  <script>
+    // Lấy dữ liệu từ localStorage
+    let links = JSON.parse(localStorage.getItem('myLinks')) || [];
+
+    // Hiển thị danh sách
+    function renderLinks() {
+      const list = document.getElementById('linkList');
+      if (links.length === 0) {
+        list.innerHTML = '<div class="empty">Chưa có link nào. Thêm link đầu tiên đi! 🚀</div>';
+        return;
+      }
+      list.innerHTML = links.map((link, i) => `
+        <div class="link-item">
+          <a href="${link.url}" target="_blank">${link.name} — ${link.url}</a>
+          <button class="delete-btn" onclick="deleteLink(${i})">Xóa</button>
+        </div>
+      `).join('');
+    }
+
+    // Thêm link
+    function addLink() {
+      const name = document.getElementById('linkName').value.trim();
+      let url = document.getElementById('linkUrl').value.trim();
+
+      if (!name || !url) {
+        alert('Vui lòng nhập đủ tên và đường dẫn!');
+        return;
+      }
+
+      // Tự động thêm https:// nếu thiếu
+      if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+
+      links.push({ name, url });
+      localStorage.setItem('myLinks', JSON.stringify(links));
+
+      document.getElementById('linkName').value = '';
+      document.getElementById('linkUrl').value = '';
+      renderLinks();
+    }
+
+    // Xóa link
+    function deleteLink(index) {
+      if (confirm('Bạn có chắc muốn xóa link này?')) {
+        links.splice(index, 1);
+        localStorage.setItem('myLinks', JSON.stringify(links));
+        renderLinks();
+      }
+    }
+
+    // Nhấn Enter để thêm
+    document.getElementById('linkUrl').addEventListener('keypress', e => {
+      if (e.key === 'Enter') addLink();
+    });
+
+    renderLinks();
+  </script>
+</body>
+</html>
